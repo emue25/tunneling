@@ -189,12 +189,11 @@ cp /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/openvpn/
 
 #set iptables openvz
 #iptables -t nat -I POSTROUTING -s 10.8.0.0/24 -o venet0 -j MASQUERADE
-#iptables -t nat -I POSTROUTING -s 10.9.0.0/24 -o venet0 -j MASQUERADE
-#iptables -t nat -I POSTROUTING -s 10.10.0.0/24 -o venet0 -j MASQUERADE
 #set iptables kvm
 iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE
-iptables -t nat -A POSTROUTING -s 10.9.0.0/24 -o eth0 -j MASQUERADE
-iptables -t nat -A POSTROUTING -s 10.10.0.0/24 -o eth0 -j MASQUERADE
+
+#allow forwarding
+sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 
 service openvpn restart
 echo "--------------------------------"
