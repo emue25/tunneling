@@ -1,6 +1,6 @@
 clear
 echo "====================================================="
-echo "            Auto Insstaller Tunneling
+echo "            Auto Insstaller Tunneling"
 echo "SSH- SSL - Squid - OpenVPN - Shadowsocks - UDPGW"
 echo "                  Ubuntu OS"
 echo "====================================================="
