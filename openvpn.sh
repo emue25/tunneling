@@ -17,66 +17,8 @@ username-as-common-name
 server 10.8.0.0 255.255.255.0
 ifconfig-pool-persist ipp.txt
 push "redirect-gateway def1"
-push "dhcp-option DNS 8.8.8.8"
-push "dhcp-option DNS 8.8.4.4"
-push "route-method exe"
-push "route-delay 2"
-keepalive 5 30
-cipher AES-128-CBC
-comp-lzo
-persist-key
-persist-tun
-status server-vpn.log
-verb 3
-END
-cat > /etc/openvpn/udp25.conf <<-END
-port 25
-proto udp
-dev tun
-tun-mtu 1500
-tun-mtu-extra 32
-mssfix 1450
-ca ca.crt
-cert server.crt
-key server.key
-dh dh2048.pem
-plugin /etc/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/login 
-client-cert-not-required
-username-as-common-name
-server 10.9.0.0 255.255.255.0
-ifconfig-pool-persist ipp.txt
-push "redirect-gateway def1"
-push "dhcp-option DNS 8.8.8.8"
-push "dhcp-option DNS 8.8.4.4"
-push "route-method exe"
-push "route-delay 2"
-keepalive 5 30
-cipher AES-128-CBC
-comp-lzo
-persist-key
-persist-tun
-status server-vpn.log
-verb 3
-END
-cat > /etc/openvpn/udpssl53.conf <<-END
-port 110
-proto udp
-dev tun
-tun-mtu 1500
-tun-mtu-extra 32
-mssfix 1450
-ca ca.crt
-cert server.crt
-key server.key
-dh dh2048.pem
-plugin /etc/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/login
-client-cert-not-required
-username-as-common-name
-server 10.10.0.0 255.255.255.0
-ifconfig-pool-persist ipp.txt
-push "redirect-gateway def1"
-push "dhcp-option DNS 8.8.8.8"
-push "dhcp-option DNS 8.8.4.4"
+push "dhcp-option DNS 1.1.1.1"
+push "dhcp-option DNS 1.0.0.1"
 push "route-method exe"
 push "route-delay 2"
 keepalive 5 30
@@ -115,18 +57,10 @@ cat > /etc/openvpn/globalssh.ovpn <<-END
 client
 dev tun
 proto tcp
-#proto udp
-#
 #for tcp 1194
 remote $ip 1194
-#for udp 25
-#remote $ip 25
-#for udp 110
-#remote $ip 110
-#change port and proto as you want            # rubah port dan proto sesuai yang diinginkan
-#there the prosedur edit type connection      #berikut prosedur mengubah jenis koneki tcp/udp
-#proto udp #with port active udp 25 & 110 choose as u want  # ganti proto tcp ke proto udp jika memakai koneksi udp
-#change 1194 to 25 or 110 as the port udp u want to use     #ganti port pada remote ke port udp/tcp yang diinginkan
+#for tcp ssl 1195
+#remote $ip 1195
 resolv-retry infinite
 route-method exe
 resolv-retry infinite
@@ -150,7 +84,8 @@ cp /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/openvpn/
 #iptables -t nat -I POSTROUTING -s 10.10.0.0/24 -o venet0 -j MASQUERADE
 #set iptables kvm
 iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE
-iptables -t nat -A POSTROUTING -s 10.9.0.0/24 -o eth0 -j MASQUERADE
-iptables -t nat -A POSTROUTING -s 10.10.0.0/24 -o eth0 -j MASQUERADE
+
+#allow forwarding
+sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 
 service openvpn restart
