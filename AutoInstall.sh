@@ -52,8 +52,8 @@ echo "--------------------------------"
 sleep 5
 
 #instalasi squid3
-apt-get install squid3 -y
-mv /etc/squid3/squid.conf /etc/squid3/squid.conf.bak
+apt-get install squid -y
+mv /etc/squid/squid.conf /etc/squid/squid.conf.bak
 ip=$(ifconfig | awk -F':' '/inet addr/&&!/127.0.0.1/&&!/127.0.0.2/{split($2,_," ");print _[1]}')
 cat > /etc/squid3/squid.conf <<-END
 acl SSL_ports port 443
@@ -70,23 +70,13 @@ acl Safe_ports port 488
 acl Safe_ports port 591
 acl Safe_ports port 777
 acl CONNECT method CONNECT
-acl SSH dst 49.213.16.18/32
-acl SSH dst 49.213.16.186/32
-acl SSH dst 49.213.16.190/32
-acl SSH dst 49.213.16.195/32
-acl SSH dst 49.213.16.21/32
-acl SSH dst 49.213.16.201/32
-acl SSH dst 49.213.16.203/32
-acl SSH dst 49.213.16.206/32
-acl SSH dst 49.213.16.215/32
-acl SSH dst 49.213.16.219/32
-acl SSH dst 49.213.16.151/32
+acl SSH dst $ip/32
 http_access allow SSH
 http_access allow manager localhost
 http_access deny manager
 http_access allow localhost
 http_access deny all
-http_port 8000
+http_port 8080
 http_port 3128
 coredump_dir /var/spool/squid3
 refresh_pattern ^ftp:           1440    20%     10080
@@ -297,26 +287,25 @@ systemctl daemon-reload
 systemctl enable shadowsocks
 systemctl start shadowsocks
 
-service openvpn restart
 echo "--------------------------------"
 echo "Shadowsocks Installed..."
 echo "--------------------------------"
 sleep 5
 
 #install webmin
-cat >> /etc/apt/sources.list <<-END
-deb http://download.webmin.com/download/repository sarge contrib
-deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib
-END
+#cat >> /etc/apt/sources.list <<-END
+#deb http://download.webmin.com/download/repository sarge contrib
+#deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib
+#END
 
-wget -q http://www.webmin.com/jcameron-key.asc -O- | sudo apt-key add -
-apt-get update
-apt-get -y install webmin
+#wget -q http://www.webmin.com/jcameron-key.asc -O- | sudo apt-key add -
+#apt-get update
+#apt-get -y install webmin
 
-echo "--------------------------------"
-echo "Webmin Installed..."
-echo "--------------------------------"
-sleep 5
+#echo "--------------------------------"
+#echo "Webmin Installed..."
+#echo "--------------------------------"
+#sleep 5
 
 #informasi SSL
 country=ID
@@ -337,8 +326,8 @@ socket = a:SO_REUSEADDR=1
 socket = l:TCP_NODELAY=1
 socket = r:TCP_NODELAY=1
 [squid]
-accept = 8080
-connect = $ip:8000
+accept = 8000
+connect = $ip:8080
 [dropbear]
 accept = 443
 connect = $ip:143
