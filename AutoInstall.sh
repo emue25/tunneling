@@ -51,11 +51,11 @@ echo "--------------------------------"
 
 sleep 5
 
-#instalasi squid3
+#instalasi squid
 apt-get install squid -y
 mv /etc/squid/squid.conf /etc/squid/squid.conf.bak
 ip=$(ifconfig | awk -F':' '/inet addr/&&!/127.0.0.1/&&!/127.0.0.2/{split($2,_," ");print _[1]}')
-cat > /etc/squid3/squid.conf <<-END
+cat > /etc/squid/squid.conf <<-END
 acl SSL_ports port 443
 acl Safe_ports port 21
 acl Safe_ports port 443
@@ -86,10 +86,10 @@ refresh_pattern .               0       20%     4320
 visible_hostname globalssh.net
 END
 
-service squid3 restart
+service squid restart
 
 echo "--------------------------------"
-echo "Squid3 Installed..."
+echo "Squid Installed..."
 echo "--------------------------------"
 sleep 5
 
