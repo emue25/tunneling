@@ -78,7 +78,7 @@ http_access allow localhost
 http_access deny all
 http_port 8080
 http_port 3128
-coredump_dir /var/spool/squid3
+coredump_dir /var/spool/squid
 refresh_pattern ^ftp:           1440    20%     10080
 refresh_pattern ^gopher:        1440    0%      1440
 refresh_pattern -i (/cgi-bin/|\?) 0     0%      0
@@ -95,9 +95,38 @@ sleep 5
 
 #install vpn
 apt-get -y install openvpn easy-rsa
-cat > /etc/openvpn/server.conf <<-END
+cat > /etc/openvpn/server-tcp.conf <<-END
 port 1194
 proto tcp
+dev tun
+tun-mtu 1500
+tun-mtu-extra 32
+mssfix 1450
+ca ca.crt
+cert server.crt
+key server.key
+dh dh2048.pem
+plugin /etc/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/login
+client-cert-not-required
+username-as-common-name
+server 10.8.0.0 255.255.255.0
+ifconfig-pool-persist ipp.txt
+push "redirect-gateway def1"
+push "dhcp-option DNS 1.1.1.1"
+push "dhcp-option DNS 1.0.0.1"
+push "route-method exe"
+push "route-delay 2"
+keepalive 5 30
+cipher AES-128-CBC
+comp-lzo
+persist-key
+persist-tun
+status server-vpn.log
+verb 3
+END
+cat > /etc/openvpn/server-udp.conf <<-END
+port 25000
+proto udp
 dev tun
 tun-mtu 1500
 tun-mtu-extra 32
