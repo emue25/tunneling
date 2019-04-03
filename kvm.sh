@@ -61,8 +61,8 @@ change_dns_resolver(){
 	wget -O /etc/issue.net "https://github.com/malikshi/IPTUNNELS/raw/master/config/issue.net"
 	rm /etc/resolv.conf
 	cat >/etc/resolv.conf << EOF
-nameserver 8.8.8.8
-nameserver 8.8.4.4
+nameserver 1.1.1.1
+nameserver 1.0.0.1
 EOF
 }
 
@@ -114,12 +114,12 @@ shadowsocks_conf(){
 	cat >/etc/shadowsocks-libev/config.json << EOF
 {
     "server":"0.0.0.0",
-    "server_port":53794,
+    "server_port":280,
     "password":"GLOBALSSH",
     "timeout":600,
     "method":"aes-256-cfb",
 	"fast_open":true,
-	"nameserver":"8.8.8.8",
+	"nameserver":"1.1.1.1",
 	"reuse_port":true,
 	"no_delay":true,
 	"mode":"tcp_and_udp",
@@ -146,12 +146,12 @@ obfs_tls(){
 	cat >/etc/shadowsocks-libev/obfs_tls.json << EOF
 {
     "server":"0.0.0.0",
-    "server_port":636,
+    "server_port":1443,
     "password":"GLOBALSSH",
     "timeout":600,
     "method":"aes-256-cfb",
 	"fast_open":true,
-	"nameserver":"8.8.8.8",
+	"nameserver":"1.1.1.1",
 	"reuse_port":true,
 	"no_delay":true,
 	"mode":"tcp_and_udp",
@@ -177,7 +177,7 @@ obfs_http(){
 	cat >/etc/shadowsocks-libev/obfs_http.json << EOF
 {
     "server":"0.0.0.0",
-    "server_port":3306,
+    "server_port":8008,
     "password":"GLOBALSSH",
     "timeout":600,
     "method":"aes-256-cfb",
@@ -238,7 +238,8 @@ systemctl enable ss_standard.service
 install_sslh(){
 	sed -i 's|no|yes|' /etc/default/sslh
 	sed -i 's|DAEMON_OPTS|#DAEMON_OPTS|' /etc/default/sslh
-	echo 'DAEMON_OPTS="--user sslh --listen 0.0.0.0:443 --ssh 0.0.0.0:54793 --http 0.0.0.0:3306 --ssl 0.0.0.0:636 --openvpn 127.0.0.1:1194  --pidfile /var/run/sslh/sslh.pid"' >> /etc/default/sslh
+	echo 'DAEMON_OPTS="--user sslh --listen 0.0.0.0:443 --ssh 0.0.0.0:143 --http 0.0.0.0:8388 --ssl 0.0.0.0:1143 --openvpn 127.0.0.1:1194  --pidfile /var/run/sslh/sslh.pid --timeout 5"' >> /etc/default/sslh
+	echo 'DAEMON_OPTS="--user sslh --listen 0.0.0.0:80 --ssh 0.0.0.0:143 --http 0.0.0.0: --ssl 0.0.0.0:636 --openvpn 127.0.0.1:1194  --pidfile /var/run/sslh/sslh.pid --timeout 5"' >> /etc/default/sslh
 	/etc/init.d/sslh start
 }
 
@@ -288,7 +289,7 @@ install_ovpn(){
 	sed -i 's|group|#group|' /etc/openvpn/server.conf
 	sed -i 's|user|#user|' /etc/openvpn/server.conf
 	cp server.conf server-udp.conf
-	sed -i 's|1194|587|' /etc/openvpn/server-udp.conf
+	sed -i 's|1194|25000|' /etc/openvpn/server-udp.conf
 	sed -i 's|tcp|udp|' /etc/openvpn/server-udp.conf
 	sed -i 's|10.8.0.0|10.9.0.0|' /etc/openvpn/server-udp.conf
 	sed -i 's|#AUTOSTART="all"|AUTOSTART="all"|' /etc/default/openvpn
@@ -327,7 +328,7 @@ rcvbuf 2000000' >> /etc/openvpn/client-template.txt
 	cd
 	cp client.ovpn clientudp.ovpn
 	sed -i 's|tcp-client|udp|' /root/clientudp.ovpn
-	sed -i 's|1194|587|' /root/clientudp.ovpn
+	sed -i 's|1194|25000|' /root/clientudp.ovpn
 	cp /root/client.ovpn /var/www/html/tcp-$MYIP.ovpn
 	cp /root/clientudp.ovpn /var/www/html/udp-$MYIP.ovpn
 }
@@ -392,7 +393,7 @@ install_badvpn(){
 
 install_ssh_banner(){
 	cd
-	echo 'Port 143' >>/etc/ssh/sshd_config
+	echo 'Port 109' >>/etc/ssh/sshd_config
 	echo 'MaxAuthTries 2' >>/etc/ssh/sshd_config
 	echo 'Banner /etc/issue.net' >>/etc/ssh/sshd_config
 }
@@ -427,7 +428,7 @@ install_stunnel4(){
 	organization=GLOBALSSH
 	organizationalunit=READYSSH
 	commonname=server
-	email=admin@iptunnels.com
+	email=admin@globalssh.net
 	openssl genrsa -out key.pem 2048
 	openssl req -new -x509 -key key.pem -out cert.pem -days 1095 \
 	-subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname/emailAddress=$email"
@@ -459,7 +460,7 @@ config_firewall(){
 	iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
 	iptables -I INPUT -p tcp --dport 3128 -j ACCEPT
 	iptables -I FORWARD -s 10.9.0.0/24 -j ACCEPT
-	iptables -I INPUT -p udp --dport 587 -j ACCEPT
+	iptables -I INPUT -p udp --dport 25000 -j ACCEPT
 	iptables -t nat -I POSTROUTING -s 10.9.0.0/24 -o $NIC -j MASQUERADE
 	iptables-save
 	apt-get -y install iptables-persistent
