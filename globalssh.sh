@@ -31,8 +31,8 @@ service ssh restart
 #install dropbear
 apt-get -y install dropbear
 sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
-sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=80/g' /etc/default/dropbear
-sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 143"/g' /etc/default/dropbear
+sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=442/g' /etc/default/dropbear
+sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 777"/g' /etc/default/dropbear
 sed -i 's/DROPBEAR_BANNER=""/DROPBEAR_BANNER="\/etc\/issue.net"/g' /etc/default/dropbear
 echo "/bin/false" >> /etc/shells
 service dropbear restart
@@ -62,14 +62,15 @@ http_access allow manager localhost
 http_access deny manager
 http_access allow localhost
 http_access deny all
-http_port 8000
+http_port 80
+http_port 8080
 http_port 3128
 coredump_dir /var/spool/squid3
 refresh_pattern ^ftp:           1440    20%     10080
 refresh_pattern ^gopher:        1440    0%      1440
 refresh_pattern -i (/cgi-bin/|\?) 0     0%      0
 refresh_pattern .               0       20%     4320
-visible_hostname globalssh.net
+visible_hostname sshfast.net
 END
 
 service squid3 restart
@@ -87,11 +88,11 @@ apt-get -y install webmin
 #informasi SSL
 country=ID
 state=JawaTengah
-locality=Purwokerto
-organization=GlobalSSH
+locality=Purworejo
+organization=vpnstunnel
 organizationalunit=Provider
-commanname=globalssh.net
-email=admin@globalssh.net
+commanname=vpnstunnel
+email=admin@vpnstunnel.com
 
 #update repository
 apt-get install stunnel4 -y
@@ -103,11 +104,11 @@ socket = a:SO_REUSEADDR=1
 socket = l:TCP_NODELAY=1
 socket = r:TCP_NODELAY=1
 [squid]
-accept = 8080
-connect = $ip:8000
+accept = 8888
+connect = $ip:3128
 [dropbear]
 accept = 443
-connect = $ip:143
+connect = $ip:442
 [openssh]
 accept = 444
 connect = $ip:22
@@ -131,7 +132,7 @@ echo "Installer Stunnel4 Berhasil"
 echo ""
 echo "OpenSSH	        : 22"
 echo "OpenSSH + SSL   : 22"
-echo "Dropbear        : 80 / 143"
+echo "Dropbear        : 442 / 777"
 echo "Dropbear + SSL  : 443"
 echo "Squid	        : 3128"
 echo "Squid	+ SSL   : 3128"
