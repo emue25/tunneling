@@ -14,10 +14,10 @@ fi
 country=ID
 state=JawaTengah
 locality=Purwokerto
-organization=GlobalSSH
+organization=vpnstunnel/
 organizationalunit=Provider
-commonname=globalssh.net
-email=admin@globalssh.net
+commonname=vpnstunnel.com
+email=admin@vpnstunnel.com
 
 #memeriksa port yang sedang berjalan
 
@@ -46,10 +46,10 @@ accept = 3128
 connect = $ip:8000
 [dropbear1]
 accept = 443
-connect = $ip:143
+connect = $ip:777
 [dropbear2]
-accept = 80
-connect = $ip:143
+accept = 445
+connect = $ip:442
 [openssh]
 accept = 444
 connect = $ip:22
